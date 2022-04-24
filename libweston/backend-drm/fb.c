@@ -373,8 +373,12 @@ drm_fb_get_from_dmabuf(struct linux_dmabuf_buffer *dmabuf,
 
 	fb->bo = gbm_bo_import(backend->gbm, GBM_BO_IMPORT_FD_MODIFIER,
 			       &import_mod, GBM_BO_USE_SCANOUT);
-	if (!fb->bo)
+	if (!fb->bo) {
+		if (try_view_on_plane_failure_reasons)
+			*try_view_on_plane_failure_reasons |=
+				FAILURE_REASONS_GBM_BO_IMPORT_FAILED;
 		goto err_free;
+	}
 
 	fb->num_planes = dmabuf->attributes.n_planes;
 	for (i = 0; i < dmabuf->attributes.n_planes; i++) {
